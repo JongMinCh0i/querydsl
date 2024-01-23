@@ -2,6 +2,7 @@ package study.querydsl;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import static com.querydsl.jpa.JPAExpressions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static study.querydsl.entity.QMember.member;
 import static study.querydsl.entity.QTeam.team;
 
@@ -382,7 +384,7 @@ public class QuerydslBasicTest {
     public void selectSubQuery() {
         List<Tuple> result = queryFactory.select(member.username,
                         select(member.age.avg())
-                        .from(member))
+                                .from(member))
                 .from(member)
                 .fetch();
 
@@ -390,4 +392,36 @@ public class QuerydslBasicTest {
             System.out.println("tuple = " + tuple);
         }
     }
+
+
+    @Test
+    public void basicCase() {
+        List<String> result = queryFactory
+                .select(member.age
+                        .when(10).then("열살")
+                        .when(20).then("스무살")
+                        .otherwise("기타"))
+                .from(member)
+                .fetch();
+
+        for (String age : result) {
+            System.out.println("member.age = " + age);
+        }
+    }
+
+    @Test
+    public void complexCase() {
+        List<String> result = queryFactory
+                .select(new CaseBuilder()
+                        .when(member.age.between(0, 20)).then("0 ~ 20살")
+                        .when(member.age.between(21, 30)).then("21~30살")
+                        .otherwise("기타"))
+                .from(member)
+                .fetch();
+
+        for (String member : result) {
+            System.out.println("member = " + member);
+        }
+    }
+
 }
