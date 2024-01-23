@@ -447,4 +447,33 @@ public class QuerydslBasicTest {
 
         System.out.println("result = " + result);
     }
+
+    @Test
+    public void simpleProjection() {
+        List<String> fetch = queryFactory
+                .select(member.username)
+                .from(member)
+                .fetch();
+
+        for (String s : fetch) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void tupleProjection() {
+        List<Tuple> fetch = queryFactory
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+
+        for (Tuple tuple : fetch) {
+            Integer age = tuple.get(member.age);
+            String username = tuple.get(member.username);
+            System.out.println("username = " + username);
+            System.out.println("age = " + age);
+        }
+    }
+
+
 }
